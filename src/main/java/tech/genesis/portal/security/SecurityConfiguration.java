@@ -26,15 +26,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
     private SecurityContextRepository securityContextRepository;
 	
-	
-
-	
 	@Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-	
-	
 	
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth)
@@ -48,8 +43,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		*/
 	}
 	
-	
-	
 	@Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 		
@@ -60,8 +53,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .cors().disable()
         //.httpBasic()
 		//.and()
-		.securityContext().securityContextRepository(securityContextRepository)
-        .and()
+		//.securityContext().securityContextRepository(securityContextRepository)
+        //.and()
         .authorizeRequests()
         //.antMatchers(
         //        "/*/api/v1/**"

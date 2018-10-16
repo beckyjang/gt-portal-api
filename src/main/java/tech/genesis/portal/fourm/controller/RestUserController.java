@@ -61,6 +61,10 @@ public class RestUserController {
 	@Autowired
 	private SessionConfiguration sessionConfiguration;
 	
+	public static final String ROLE_PORTAL_ADMIN = "portaladministrators";
+	public static final String ROLE_PORTAL_ORG_DEVELOPER = "devorgadministrators";
+	public static final String ROLE_PORTAL_DEVELOPER = "developers";
+	
 	@GetMapping(value = { "", "/" })
 	public List<User> getAllUsers(){
 		return userRepository.findAll();
@@ -89,7 +93,7 @@ public class RestUserController {
 			if(Objects.isNull(organization_uuid))
 				continue;
 			
-			Organization organization = organizationRepository.getOranizationByUuid(organization_uuid);
+			Organization organization = organizationRepository.getOranizationByUuidAndTenantId(organization_uuid, tenantId);
 			
 			if(Objects.isNull(organization))
 				continue;
@@ -110,43 +114,33 @@ public class RestUserController {
 	@GetMapping("/session")
 	public UserResponse getUserBySession(){
 		
-		/***
-		
+		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userDetailName = ((UserDetails)principal).getUsername();
+		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
         
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
+       
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-		
+
 		String username = "admin";
 		String tenantId = "apipt";
-		String role = "portaladministrators";
-		
+		String role = ROLE_PORTAL_ADMIN;
 		
 		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
-        String uuid_user = user.getId();
-        
-        Long points = userRepository.getPoints(uuid_user);
-        Long numberOfTopics = topicRepository.countTopicsByUser_Id(uuid_user);
-        Long numberOfAnswers = answerRepository.countAnswersByUser_Id(uuid_user);
-        Long numberOfHelped = answerRepository.countAnswersByUser_IdAndUseful(uuid_user, true);
-
-        Organization organization = organizationRepository.getOranizationByUuid(user.getOrganizationUuid());
+       
+        Organization organization = organizationRepository.getOranizationByUuidAndTenantId(user.getOrganizationUuid(), tenantId);
         
         UserResponse userResponse = new UserResponse();
         
         userResponse.setUser(user);
         userResponse.setRole(role);
         userResponse.setOrganization(organization);
-        userResponse.setNumberOfTopics(numberOfTopics);
-        userResponse.setNumberOfAnswers(numberOfAnswers);
-        userResponse.setPoints(points);
-        userResponse.setHelped(numberOfHelped);
-       
+        
         return userResponse;
 	}
 	
@@ -172,8 +166,6 @@ public class RestUserController {
 		public void setCategory(String category) {
 			this.category = category;
 		}
-		
-		
 	}
 	
 	public static class UserResponse {
@@ -182,12 +174,6 @@ public class RestUserController {
 		private Organization organization;
 		private String role;
 		
-		private Long numberOfTopics;
-		private Long numberOfAnswers;
-	    
-	    private Long points;
-	    private Long helped;
-
 		public User getUser() {
 			return user;
 		}
@@ -212,40 +198,6 @@ public class RestUserController {
 			this.role = role;
 		}
 
-		public Long getNumberOfTopics() {
-			return numberOfTopics;
-		}
-
-		public void setNumberOfTopics(Long numberOfTopics) {
-			this.numberOfTopics = numberOfTopics;
-		}
-
-		public Long getNumberOfAnswers() {
-			return numberOfAnswers;
-		}
-
-		public void setNumberOfAnswers(Long numberOfAnswers) {
-			this.numberOfAnswers = numberOfAnswers;
-		}
-
-		public Long getPoints() {
-			return points;
-		}
-
-		public void setPoints(Long points) {
-			this.points = points;
-		}
-
-		public Long getHelped() {
-			return helped;
-		}
-
-		public void setHelped(Long helped) {
-			this.helped = helped;
-		}
-        
     }
-	
-	
 	
 }

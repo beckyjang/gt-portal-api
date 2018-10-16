@@ -71,22 +71,26 @@ public class RestTopicController {
 	}
 
 	@GetMapping(value = { "/{id}" })
-	public Topic getTopicById(@PathVariable Long id){
-		return topicRepository.findTopicById(id);
-	}
+	public Topic getTopicByIdAndTenantId(@PathVariable Long id){
+		
+		/*
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userDetailName = ((UserDetails)principal).getUsername();
+        
+        String[] splitArray =  userDetailName.split("\\\\");
+        
+        String username = splitArray[0];
+        String tenantId = splitArray[1];
+        String role = splitArray[2];
+       
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
 
-
-
-
-	@GetMapping(value = { "/user/{uuid}" })
-	public Page<Topic> getTopicByUserId(@PathVariable String uuid, @RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="10") int size){
-		return topicRepository.findTopicsByUser_Id(PageRequest.of(page,size),uuid);
-		//return topicRepository.findTopicsByUser_IdOrderByCreatedDateDesc(uuid);
-	}
-
-	@GetMapping("/category/{category}")
-	public Page<Topic> getTopicsByCategory(Pageable page, @PathVariable String category){
-		return topicRepository.findTopicsByCategoryOrderByCreatedDateDesc(page,category);
+		String username = "admin";
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+		
+		return topicRepository.findTopicByIdAndTenantId(id,tenantId);
 	}
 
 	@GetMapping(value = { "/guide/list" })
@@ -116,10 +120,8 @@ public class RestTopicController {
 		}
 
 		List<Topic> guideList = new ArrayList<>();
-		List<Topic> permitList = new ArrayList<>();
-
+		
 		Page<Object[]> queryTopicPage = null;
-
 
 		if (role.equals(ROLE_PORTAL_ADMIN)) {
 			queryTopicPage = topicRepository.findAllTopicsByCategoryAndTenantIdWithPagination(pageable, CATEGORY_GUIDE, tenantId);
@@ -141,7 +143,6 @@ public class RestTopicController {
 		}
 
 		Page<Topic> pageGuide = new PageImpl<>(guideList, pageable, queryTopicPage.getTotalElements() );
-
 
 		return pageGuide;
 	}
@@ -166,18 +167,11 @@ public class RestTopicController {
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 
-		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
-
-		if(Objects.isNull(user)){
-			throw new IllegalArgumentException("User is null...");
-		}
-
 		List<Topic> qnaList = new ArrayList<>();
 
 		Page<Object[]> queryTopicPage = null;
 
 		queryTopicPage = topicRepository.findAllTopicsByCategoryAndTenantIdWithPagination(pageable, CATEGORY_QNA, tenantId);
-
 
 		for(Object[] topic : queryTopicPage){
 			Topic item = new Topic();
@@ -192,7 +186,6 @@ public class RestTopicController {
 		}
 
 		Page<Topic> pageGuide = new PageImpl<>(qnaList, pageable, queryTopicPage.getTotalElements() );
-
 
 		return pageGuide;
 	}
@@ -213,9 +206,6 @@ public class RestTopicController {
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 
-        User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
-        String uuid_user = user.getId();
-
 		Topic guide = topicRepository.findTopicByIdAndTenantId(id, tenantId);
 
 		return guide;
@@ -225,14 +215,17 @@ public class RestTopicController {
 	public Topic getTopicQnaById(@PathVariable Long id){
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userDetailName = ((UserDetails)principal).getUsername();
-
+		String userDetailName = ((UserDetails)principal).getUsername();
+        
         String[] splitArray =  userDetailName.split("\\\\");
-
+        
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-		*/
+       
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
+
 		String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
@@ -253,29 +246,28 @@ public class RestTopicController {
 		return document;
 	}
 
-
-
-
-
-
 	@DeleteMapping(value = { "/guide/delete/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteTopicGuideById(@PathVariable Long id){
-
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
-
+        
         String[] splitArray =  userDetailName.split("\\\\");
-
+        
         String username = splitArray[0];
         String tenantId = splitArray[1];
+        String role = splitArray[2];
+       
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
 
-       */
-
-
-		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_Id(id);
-		List<Answer> answerList = answerRepository.findAnswerByTopic_Id(id);
+		String username = "admin";
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+		
+		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_IdAndTenantId(id, tenantId);
+		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
 		attachFileList.forEach(attachFile -> {
 			attachFileRepository.delete(attachFile);
@@ -294,17 +286,22 @@ public class RestTopicController {
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
-
+        
         String[] splitArray =  userDetailName.split("\\\\");
-
+        
         String username = splitArray[0];
         String tenantId = splitArray[1];
+        String role = splitArray[2];
+       
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
 
-       */
+		String username = "admin";
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
 
-
-		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_Id(id);
-		List<Answer> answerList = answerRepository.findAnswerByTopic_Id(id);
+		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_IdAndTenantId(id, tenantId);
+		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
 		attachFileList.forEach(attachFile -> {
 			attachFileRepository.delete(attachFile);
@@ -323,17 +320,22 @@ public class RestTopicController {
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
-
+        
         String[] splitArray =  userDetailName.split("\\\\");
-
+        
         String username = splitArray[0];
         String tenantId = splitArray[1];
+        String role = splitArray[2];
+       
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
 
-       */
-
-
-		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_Id(id);
-		List<Answer> answerList = answerRepository.findAnswerByTopic_Id(id);
+		String username = "admin";
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+		
+		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_IdAndTenantId(id, tenantId);
+		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
 		attachFileList.forEach(attachFile -> {
 			attachFileRepository.delete(attachFile);
@@ -356,16 +358,16 @@ public class RestTopicController {
         
         String username = splitArray[0];
         String tenantId = splitArray[1];
+        String role = splitArray[2];
        
-       
-       
-       */
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
 
 		String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 
-		String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 
 		Topic topic = new Topic();
 		AttachFile attachFile = new AttachFile();
@@ -413,8 +415,7 @@ public class RestTopicController {
 		topic.setContent(topicForm.getContent());
 		topic.setTenantId(tenantId);
 		topic.setCreatedDate(LocalDateTime.now());
-		topic.setUser(userRepository.getUserById(uuid_user));
-
+		topic.setUser(user);
 
 		Topic createTopic = topicRepository.save(topic);
 

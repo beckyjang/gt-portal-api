@@ -18,13 +18,7 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     void setUsefulForAnswer(@Param("bool") Boolean bool, @Param("id") Long id);
 
     @Transactional
-    void deleteAnswerById(Long id);
-
-    Long countAnswersByUser_Id(String uuid);
-    Long countAnswersByUser_IdAndUseful(String uuid, boolean useful);
-    Long countAnswersByTopic_Id(Long topic_id);
-
-    List<Answer> findAnswerByUser_IdOrderByCreatedDateDesc(String id);
-    List<Answer> findAnswerByUser_IdAndUsefulOrderByCreatedDateDesc(String uuid, boolean useful);
-    List<Answer> findAnswerByTopic_Id(Long topic_id);
+    void deleteAnswerByIdAndTenantId(Long id, String tenantId);
+    
+    List<Answer> findAnswerByTopic_IdAndTenantId(Long topic_id, String tenantId);
 }

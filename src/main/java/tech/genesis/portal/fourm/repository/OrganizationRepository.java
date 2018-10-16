@@ -6,5 +6,5 @@ import tech.genesis.portal.fourm.domain.Organization;
 import tech.genesis.portal.fourm.domain.OrganizationPk;
 
 public interface OrganizationRepository extends JpaRepository<Organization, OrganizationPk> {
-	Organization getOranizationByUuid(String uuid);
+	Organization getOranizationByUuidAndTenantId(String uuid, String tenantId);
 }

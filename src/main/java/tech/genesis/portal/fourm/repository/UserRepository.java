@@ -11,22 +11,11 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, UserPk> {
 
-    User getUserByUsername(String username);
-    User getUserById(String uuid);
-    
+    //User getUserByUsername(String username);
+    User getUserByIdAndTenantId(String uuid, String tenantId);
     User getUserByUsernameAndTenantId(String username, String tenantId);
-    
-    List<User> findAll();
-    List<User> findUserByTenantId(String tenantId);
 
-    @Query (
-        value = "(SELECT SUM(points) FROM (SELECT COUNT(topic.uuid) AS points FROM topic WHERE topic.uuid = :id" +
-                " UNION ALL SELECT 2 * COUNT(answer.uuid) AS points FROM answer WHERE answer.uuid = :id UNION ALL " +
-                "SELECT 3 * COUNT(answer.uuid) AS points FROM answer WHERE answer.uuid = :id AND answer.useful = TRUE) t)",
-        nativeQuery = true
-    )
-    Long getPoints(@Param("id") String id);
-    
+    List<User> findUserByTenantId(String tenantId);
     
     @Query (
             value = "select ur.name from user_role ur, user_role_xref urx where ur.uuid = urx.role_uuid and ur.type = 'EXTERNAL' and urx.user_uuid = :id and ur.tenant_id = :tenantId"

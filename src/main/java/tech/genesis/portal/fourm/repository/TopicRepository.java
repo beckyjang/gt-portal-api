@@ -12,24 +12,9 @@ import java.util.List;
 
 public interface TopicRepository extends JpaRepository<Topic, Long> {
 
-    Long countTopicsByUser_Id(String uuid);
-
-    Topic findTopicById(Long id);
     Topic findTopicByIdAndTenantId(Long id, String tenantId);
     Topic findTopicByTitleAndTenantIdAndCategory(String title, String tenantId, String category);
-    
-    Long countTopicsByCategory(String category);
-    List<Topic> findTopicsByCategory(Pageable page, String category);
-
-    Page<Topic> findTopicsByCategoryOrderByCreatedDateDesc(Pageable page, String category);
-    Page<Topic> findTopicsByUser_IdOrderByCreatedDateDesc(Pageable page, String uuid);
-    Page<Topic> findTopicsByUser_Id(Pageable pageable, String uuid);
-    
-    Page<Topic> findAll(Pageable pageable);
-    
-    @Query(value = "SELECT id, title FROM Topic t ORDER BY id")
-    Page<Topic> findAllTopicsWithPagination(Pageable pageable);
-    
+   
     @Query(value = "SELECT id, title, (select u.username from user_info u where u.uuid = t.uuid and u.tenant_id = ?2) as username, created_date" +
             " FROM Topic t WHERE t.category = ?1 and t.tenant_id = ?2 ORDER BY created_date DESC",
             countQuery = "SELECT count(*)" +

@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import tech.genesis.portal.fourm.domain.AttachFile;
 
 public interface AttachFileRepository extends JpaRepository<AttachFile, Long> {
-	List<AttachFile> findAttachFileByTopic_Id(Long topic_id);
-	
-	AttachFile findAttachFileById(Long id);
+	List<AttachFile> findAttachFileByTopic_IdAndTenantId(Long topic_id, String tenantId);
+	AttachFile findAttachFileByIdAndTenantId(Long id, String tenantId);
 }

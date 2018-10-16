@@ -21,6 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import tech.genesis.portal.fourm.domain.Answer;
 import tech.genesis.portal.fourm.domain.AttachFile;
+import tech.genesis.portal.fourm.domain.User;
 import tech.genesis.portal.fourm.repository.AnswerRepository;
 import tech.genesis.portal.fourm.repository.AttachFileRepository;
 import tech.genesis.portal.fourm.repository.TopicRepository;
@@ -64,16 +65,6 @@ public class RestAnswersController {
         return answerRepository.findById(id);
     }
     
-    @GetMapping("/user/{uuid}")
-    public List<Answer> getAnswersByUser(@PathVariable String uuid) {
-        return answerRepository.findAnswerByUser_IdOrderByCreatedDateDesc(uuid);
-    }
-    
-    @GetMapping("/useful/user/{uuid}")
-    public List<Answer> getUsefulAnswersByUser(@PathVariable String uuid) {
-        return answerRepository.findAnswerByUser_IdAndUsefulOrderByCreatedDateDesc(uuid, true);
-    }
-    
     @PostMapping(value={"/topic/{topic_id}"})
     public ResponseEntity<Answer> createAnswerBySessionByTopicId(@ModelAttribute AnswerForm answerForm, @PathVariable String topic_id, HttpServletRequest request) {
     	
@@ -94,7 +85,7 @@ public class RestAnswersController {
         String tenantId = "apipt";
         String role = ROLE_PORTAL_ADMIN;
 
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 		
         Answer answer = new Answer();
         AttachFile attachFile = new AttachFile();
@@ -133,14 +124,13 @@ public class RestAnswersController {
     		answer.setAttachFile(attachFileList);
     		
         }
-        
-        
+
         answer.setContent(answerForm.getContent());
         answer.setCreatedDate(LocalDateTime.now());
         answer.setTenantId(tenantId);
         answer.setUseful(false);
-        answer.setTopic(topicRepository.findTopicById(Long.valueOf(topic_id)));
-        answer.setUser(userRepository.getUserById(uuid_user));
+        answer.setTopic(topicRepository.findTopicByIdAndTenantId(Long.valueOf(topic_id),tenantId));
+        answer.setUser(user);
 
         Answer createAnswer = answerRepository.save(answer);
         

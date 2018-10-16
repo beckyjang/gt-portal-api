@@ -7,5 +7,5 @@ import tech.genesis.portal.fourm.domain.UserRolePk;
 import tech.genesis.portal.fourm.domain.UserRoleXref;
 
 public interface UserRoleRepository extends JpaRepository<UserRole, UserRolePk> {
-	UserRoleXref getUerRoleByUuid(String uuid);
+	UserRoleXref getUerRoleByUuidAndTenantId(String uuid, String tenantId);
 }

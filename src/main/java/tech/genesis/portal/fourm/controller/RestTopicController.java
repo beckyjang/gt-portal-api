@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +36,8 @@ import tech.genesis.portal.fourm.repository.AttachFileRepository;
 import tech.genesis.portal.fourm.repository.TopicRepository;
 import tech.genesis.portal.fourm.repository.UserRepository;
 import tech.genesis.portal.fourm.service.FileStorageService;
+import tech.genesis.portal.fourm.specification.TopicSpecificationsBuilder;
+import tech.genesis.portal.util.SearchOperation;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders="*")
@@ -65,9 +71,20 @@ public class RestTopicController {
 	private SessionConfiguration sessionConfiguration;
 
 	@GetMapping(value = { "", "/" })
-	public Page<Topic> getAllTopics(Pageable pageable){
+	@ResponseBody
+	public Page<Topic> getAllTopics(Pageable pageable, @RequestParam(value = "search") String search){
+		TopicSpecificationsBuilder builder = new TopicSpecificationsBuilder();
+		String operationSetExper = Joiner.on("|")
+				.join(SearchOperation.SIMPLE_OPERATION_SET);
+		Pattern pattern = Pattern.compile("(\\w+?)(" + operationSetExper + ")(\\p{Punct}?)(\\w+?)(\\p{Punct}?),");
+		Matcher matcher = pattern.matcher(search + ",");
+		while (matcher.find()) {
+			builder.with(matcher.group(1), matcher.group(2), matcher.group(4), matcher.group(3), matcher.group(5));
+		}
 
-		return topicRepository.findAll(pageable);
+		Specification<Topic> spec = builder.build();
+
+		return topicRepository.findAll(spec, pageable);
 	}
 
 	@GetMapping(value = { "/{id}" })

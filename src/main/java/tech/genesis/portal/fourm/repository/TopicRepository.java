@@ -4,13 +4,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import tech.genesis.portal.fourm.domain.Topic;
 
 import java.util.List;
 
-public interface TopicRepository extends JpaRepository<Topic, Long> {
+public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecificationExecutor<Topic> {
 
     Topic findTopicByIdAndTenantId(Long id, String tenantId);
     Topic findTopicByTitleAndTenantIdAndCategory(String title, String tenantId, String category);

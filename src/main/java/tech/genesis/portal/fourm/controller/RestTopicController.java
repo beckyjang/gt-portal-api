@@ -72,7 +72,7 @@ public class RestTopicController {
 
 	@GetMapping(value = { "", "/" })
 	@ResponseBody
-	public Page<Topic> getAllTopics(Pageable pageable, @RequestParam(value = "search") String search){
+	public Page<Topic> getAllTopics(Pageable pageable, @RequestParam(value = "search", required=false) String search){
 		TopicSpecificationsBuilder builder = new TopicSpecificationsBuilder();
 		String operationSetExper = Joiner.on("|")
 				.join(SearchOperation.SIMPLE_OPERATION_SET);

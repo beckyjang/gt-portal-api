@@ -42,7 +42,6 @@ import tech.genesis.portal.fourm.repository.UserRepository;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders="*")
-@RequestMapping("/api/v1/users")
 @Transactional
 public class RestUserController {
 	
@@ -65,13 +64,14 @@ public class RestUserController {
 	public static final String ROLE_PORTAL_ORG_DEVELOPER = "devorgadministrators";
 	public static final String ROLE_PORTAL_DEVELOPER = "developers";
 	
-	@GetMapping(value = { "", "/" })
+	@GetMapping(value = { "/api/v1/users", "/api/v1/users/" })
 	public List<User> getAllUsers(){
 		return userRepository.findAll();
 	}
 	
-	@GetMapping("/spectator")
-	public ResponseEntity<Object> getSpectator(HttpServletRequest request){
+	// 4.2.7.8
+	@GetMapping("/api/v0/users/spectator/")
+	public ResponseEntity<Object> getSpectatorBy4278(HttpServletRequest request){
 		
 		String tenantId = sessionConfiguration.parseTenant(request);
 		
@@ -110,6 +110,33 @@ public class RestUserController {
 		
         return new ResponseEntity<Object>(cumsumerResponseList, headers, HttpStatus.OK );
 	}
+	
+	// 4.2.9.1
+	@GetMapping("/api/v1/users/spectator")
+	public ResponseEntity<Object> getSpectator(HttpServletRequest request){
+		
+		String tenantId = sessionConfiguration.parseTenant(request);
+		
+		List<Object[]> userList = userRepository.findAllUsersByTenantId(tenantId);
+		
+		CumsumerResponse cumsumerResponse = new CumsumerResponse();
+		List<CumsumerResponse> cumsumerResponseList = new ArrayList<CumsumerResponse>();
+		
+		for(Object[] user: userList) {
+			cumsumerResponse = new CumsumerResponse();
+			String user_uuid = user[0].toString();
+			cumsumerResponse.setId(user_uuid);
+			cumsumerResponse.setItemName(user[2].toString()+" "+user[3].toString()+"("+user[1].toString()+")");
+			cumsumerResponse.setCategory(user[4].toString());
+		
+			cumsumerResponseList.add(cumsumerResponse);
+		}
+	   
+		HttpHeaders headers = new HttpHeaders();
+		
+        return new ResponseEntity<Object>(cumsumerResponseList, headers, HttpStatus.OK );
+	}
+	
 	
 	@GetMapping("/session")
 	public UserResponse getUserBySession(){

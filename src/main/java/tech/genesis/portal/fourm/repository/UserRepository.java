@@ -15,7 +15,20 @@ public interface UserRepository extends JpaRepository<User, UserPk> {
     User getUserByIdAndTenantId(String uuid, String tenantId);
     User getUserByUsernameAndTenantId(String username, String tenantId);
 
+    // PORTAL-VERSION 4.2.7.8
     List<User> findUserByTenantId(String tenantId);
+    
+    // PORTAL-VERSION 4.2.7.9
+    @Query (
+            value = "select ui.uuid, ui.username, ui.first_name, ui.last_name, o.name "+
+            		"from user_info ui, user_custom_attr uca, organization o " + 
+            		"where ui.uuid = uca.user_uuid " + 
+            		"and uca.attr_key = 'orgUuid' " +
+            		"and o.uuid = uca.attr_value " +
+            		"and ui.tenant_id = :tenantId"
+            , nativeQuery = true
+    )
+    List<Object[]> findAllUsersByTenantId(@Param("tenantId") String tenantId);
     
     @Query (
             value = "select ur.name from user_role ur, user_role_xref urx where ur.uuid = urx.role_uuid and ur.type = 'EXTERNAL' and urx.user_uuid = :id and ur.tenant_id = :tenantId"

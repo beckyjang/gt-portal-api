@@ -10,7 +10,7 @@ public class CommonController {
     @RequestMapping(value = "/**/{[path:[^\\.]*}")       
     public String redirect() {
         //Forward to home page so that route is preserved.
-        return "forward:/ssgpay/";
+        return "forward:/gtapi/";
     }
     
 }

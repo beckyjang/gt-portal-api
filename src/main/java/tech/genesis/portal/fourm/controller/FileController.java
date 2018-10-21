@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
+import tech.genesis.portal.fourm.domain.Answer;
 import tech.genesis.portal.fourm.domain.AttachFile;
 
 import tech.genesis.portal.fourm.domain.UploadFileResponse;
@@ -34,6 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import java.util.stream.Collectors;
+
+import static tech.genesis.portal.fourm.controller.RestTopicController.ROLE_PORTAL_ADMIN;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders="*")
@@ -138,7 +142,38 @@ public class FileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
-    
+
+
+	@DeleteMapping(value = { "/deleteAttachFile/{id}" })
+	@ResponseStatus(HttpStatus.OK)
+	public void deleteAttachFileById(@PathVariable Long id){
+		/*
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userDetailName = ((UserDetails)principal).getUsername();
+
+        String[] splitArray =  userDetailName.split("\\\\");
+
+        String username = splitArray[0];
+        String tenantId = splitArray[1];
+        String role = splitArray[2];
+
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
+
+		String username = "admin";
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+
+		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByIdAndTenantId(id, tenantId);
+
+		attachFileList.forEach(attachFile -> {
+			attachFileRepository.delete(attachFile);
+			fileStorageService.deleteFile(attachFile.getFilePath());
+		});
+
+	}
+
+
 	public static class ImageResponse {
 		
 		private int uploaded;

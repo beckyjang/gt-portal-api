@@ -40,6 +40,9 @@ public class Topic {
     @Column(nullable = false)
     private String title;
 
+    @Column()
+    private String subTitle;
+
     @Lob
     @Column(nullable = false)
     private String content;
@@ -89,6 +92,14 @@ public class Topic {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getSubTitle() {
+        return subTitle;
+    }
+
+    public void setSubTitle(String subTitle) {
+        this.subTitle = subTitle;
     }
 
     public String getContent() {

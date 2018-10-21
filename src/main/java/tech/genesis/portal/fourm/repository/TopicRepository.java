@@ -14,9 +14,9 @@ import java.util.List;
 public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecificationExecutor<Topic> {
 
     Topic findTopicByIdAndTenantId(Long id, String tenantId);
-    Topic findTopicByTitleAndTenantIdAndCategory(String title, String tenantId, String category);
+    Topic findTopicBySubTitleAndTenantIdAndCategory(String subTitle, String tenantId, String category);
    
-    @Query(value = "SELECT id, title, (select u.username from user_info u where u.uuid = t.uuid and u.tenant_id = ?2) as username, created_date" +
+    @Query(value = "SELECT id, title, COALESCE (sub_title, ''), (select u.username from user_info u where u.uuid = t.uuid and u.tenant_id = ?2) as username, created_date" +
             " FROM Topic t WHERE t.category = ?1 and t.tenant_id = ?2 ORDER BY created_date DESC",
             countQuery = "SELECT count(*)" +
                     " FROM Topic t WHERE t.category = ?1 and t.tenant_id = ?2",

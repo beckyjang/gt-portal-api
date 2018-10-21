@@ -152,8 +152,9 @@ public class RestTopicController {
 
 			item.setId(Long.valueOf(topic[0].toString()));
 			item.setTitle(topic[1].toString());
-			item.setUsername(topic[2].toString());
-			item.setCreatedate(topic[3].toString());
+			item.setSubTitle(topic[2].toString());
+			item.setUsername(topic[3].toString());
+			item.setCreatedate(topic[4].toString());
 
 			guideList.add(item);
 
@@ -195,14 +196,43 @@ public class RestTopicController {
 
 			item.setId(Long.valueOf(topic[0].toString()));
 			item.setTitle(topic[1].toString());
-			item.setUsername(topic[2].toString());
-			item.setCreatedate(topic[3].toString());
+			item.setSubTitle(topic[2].toString());
+			item.setUsername(topic[3].toString());
+			item.setCreatedate(topic[4].toString());
 
 			qnaList.add(item);
 
 		}
 
 		Page<Topic> pageGuide = new PageImpl<>(qnaList, pageable, queryTopicPage.getTotalElements() );
+
+		return pageGuide;
+	}
+
+
+	@GetMapping(value = { "/document/list" })
+	public Page<Topic> getAllDocument(Pageable pageable, HttpServletRequest request){
+
+		List<Topic> guideList = new ArrayList<>();
+
+		Page<Object[]> queryTopicPage = null;
+
+		queryTopicPage = topicRepository.findAllTopicsByCategoryAndTenantIdWithPagination(pageable, CATEGORY_DOCUMENT, sessionConfiguration.parseTenant(request));
+
+		for(Object[] topic : queryTopicPage){
+			Topic item = new Topic();
+
+			item.setId(Long.valueOf(topic[0].toString()));
+			item.setTitle(topic[1].toString());
+			item.setSubTitle(topic[2].toString());
+			item.setUsername(topic[3].toString());
+			item.setCreatedate(topic[4].toString());
+
+			guideList.add(item);
+
+		}
+
+		Page<Topic> pageGuide = new PageImpl<>(guideList, pageable, queryTopicPage.getTotalElements() );
 
 		return pageGuide;
 	}
@@ -255,10 +285,10 @@ public class RestTopicController {
 		return qna;
 	}
 
-	@GetMapping(value = { "/document/detail/{title}" })
-	public Topic getTopicDocumentByTitle(@PathVariable String title, HttpServletRequest request){
+	@GetMapping(value = { "/document/detail/{subTitle}" })
+	public Topic getTopicDocumentByTitle(@PathVariable String subTitle, HttpServletRequest request){
 
-		Topic document = topicRepository.findTopicByTitleAndTenantIdAndCategory(title, sessionConfiguration.parseTenant(request), CATEGORY_DOCUMENT);
+		Topic document = topicRepository.findTopicBySubTitleAndTenantIdAndCategory(subTitle, sessionConfiguration.parseTenant(request), CATEGORY_DOCUMENT);
 
 		return document;
 	}
@@ -283,7 +313,7 @@ public class RestTopicController {
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 		
-		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_IdAndTenantId(id, tenantId);
+		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
 		attachFileList.forEach(attachFile -> {
@@ -317,7 +347,7 @@ public class RestTopicController {
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 
-		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_IdAndTenantId(id, tenantId);
+		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
 		attachFileList.forEach(attachFile -> {
@@ -332,7 +362,8 @@ public class RestTopicController {
 
 
 	@DeleteMapping(value = { "/{id}" })
-	public String deleteTopicById(@PathVariable Long id){
+	@ResponseStatus(HttpStatus.OK)
+	public void deleteTopicById(@PathVariable Long id){
 
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -351,7 +382,7 @@ public class RestTopicController {
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 		
-		List<AttachFile> attachFileList = attachFileRepository.findAttachFileByTopic_IdAndTenantId(id, tenantId);
+		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
 		attachFileList.forEach(attachFile -> {
@@ -362,7 +393,6 @@ public class RestTopicController {
 
 		topicRepository.deleteById(id);
 
-		return "delete";
 	}
 	
 	@PostMapping()
@@ -385,6 +415,26 @@ public class RestTopicController {
 		String role = ROLE_PORTAL_ADMIN;
 
 		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
+
+
+		// if category document find subtitle topic and delete
+		if(topicForm.getCategory().equals(CATEGORY_DOCUMENT)) {
+			Topic document = topicRepository.findTopicBySubTitleAndTenantIdAndCategory(topicForm.getSubTitle(),
+					tenantId, CATEGORY_DOCUMENT);
+
+			if(!Objects.isNull(document)) {
+				List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(document.getId(), tenantId);
+				List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(document.getId(), tenantId);
+
+				attachFileList.forEach(attachFile -> {
+					attachFileRepository.delete(attachFile);
+					fileStorageService.deleteFile(attachFile.getFilePath());
+				});
+				answerList.forEach(answer -> answerRepository.delete(answer));
+
+				topicRepository.deleteById(document.getId());
+			}
+		}
 
 		Topic topic = new Topic();
 		AttachFile attachFile = new AttachFile();
@@ -427,6 +477,7 @@ public class RestTopicController {
 		}
 
 		topic.setTitle(topicForm.getTitle());
+		topic.setSubTitle(topicForm.getSubTitle());
 		topic.setCategory(topicForm.getCategory());
 		topic.setPermit(topicForm.getPermit());
 		topic.setContent(topicForm.getContent());
@@ -453,9 +504,90 @@ public class RestTopicController {
 		return new ResponseEntity<>(topic, headers, HttpStatus.CREATED);
 	}
 
+    @PostMapping(value = { "/{id}" })
+    @ResponseStatus(HttpStatus.OK)
+    public void updateTopic(@PathVariable Long id, @ModelAttribute TopicForm topicForm, HttpServletRequest request) {
+		/*
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userDetailName = ((UserDetails)principal).getUsername();
+
+        String[] splitArray =  userDetailName.split("\\\\");
+
+        String username = splitArray[0];
+        String tenantId = splitArray[1];
+        String role = splitArray[2];
+
+        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
+        */
+
+        String username = "admin";
+        String tenantId = "apipt";
+        String role = ROLE_PORTAL_ADMIN;
+
+        User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
+
+        Topic topic = topicRepository.findTopicByIdAndTenantId(id, tenantId);
+
+        topic.setTitle(topicForm.getTitle());
+        topic.setSubTitle(topicForm.getSubTitle());
+        topic.setCategory(topicForm.getCategory());
+        topic.setPermit(topicForm.getPermit());
+        topic.setContent(topicForm.getContent());
+        topic.setTenantId(tenantId);
+        topic.setCreatedDate(LocalDateTime.now());
+        topic.setUser(user);
+
+        List<AttachFile> attachFileList = topic.getAttachFile();
+        
+        // if file exist set file
+        if (Objects.nonNull(topicForm.getFile())) {
+
+            MultipartFile file = topicForm.getFile();
+
+            String fileName = fileStorageService.storeFileRamdomName(file);
+
+    		/*
+    		String fileDownloadUri =
+            		"https"
+            		.concat("://")
+            		.concat(request.getServerName())
+            		.concat(request.getServletPath())
+            		.concat("/api/v1/files/download/")
+            		.concat(fileName);
+    		*/
+
+            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
+                    .path("/api/v1/files/download/")
+                    .path(fileName)
+                    .toUriString();
+
+            AttachFile attachFile = new AttachFile();
+
+            attachFile.setFileName(file.getOriginalFilename());
+            attachFile.setFilePath(fileName);
+            attachFile.setFileDownloadUri(fileDownloadUri);
+            attachFile.setContentType(file.getContentType());
+            attachFile.setSize(file.getSize());
+            attachFile.setTenantId(tenantId);
+            attachFile.setCreatedDate(LocalDateTime.now());
+            attachFile.setTopic(topic);
+            attachFileList.add(attachFile);
+
+            attachFileRepository.save(attachFile);
+
+            topic.setAttachFile(attachFileList);
+
+        }
+
+        topicRepository.save(topic);
+
+    }
+
+
 	public static class TopicForm {
 
         private String title;
+		private String subTitle;
         private String content;
         private String category;
         private String permit; 
@@ -468,7 +600,15 @@ public class RestTopicController {
 		public void setTitle(String title) {
 			this.title = title;
 		}
-		
+
+		public String getSubTitle() {
+			return subTitle;
+		}
+
+		public void setSubTitle(String subTitle) {
+			this.subTitle = subTitle;
+		}
+
 		public String getContent() {
 			return content;
 		}

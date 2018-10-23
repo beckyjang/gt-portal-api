@@ -124,11 +124,9 @@ public class RestUserController {
 		
 		for(Object[] user: userList) {
 			cumsumerResponse = new CumsumerResponse();
-			String user_uuid = user[0].toString();
-			cumsumerResponse.setId(user_uuid);
-			cumsumerResponse.setItemName(user[2].toString()+" "+user[3].toString()+"("+user[1].toString()+")");
-			cumsumerResponse.setCategory(user[4].toString());
-		
+			cumsumerResponse.setId(user[0].toString());
+			cumsumerResponse.setItemName(user[1].toString());
+			cumsumerResponse.setCategory(user[2].toString());
 			cumsumerResponseList.add(cumsumerResponse);
 		}
 	   
@@ -138,9 +136,8 @@ public class RestUserController {
 	}
 	
 	
-	@GetMapping("/session")
+	@GetMapping("/api/v1/users/session")
 	public UserResponse getUserBySession(){
-		
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
@@ -150,11 +147,9 @@ public class RestUserController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 		
@@ -175,6 +170,7 @@ public class RestUserController {
 		private String id;
 		private String itemName;
 		private String category;
+		
 		public String getId() {
 			return id;
 		}

@@ -67,24 +67,21 @@ public class RestAnswersController {
     
     @PostMapping(value={"/topic/{topic_id}"})
     public ResponseEntity<Answer> createAnswerBySessionByTopicId(@ModelAttribute AnswerForm answerForm, @PathVariable String topic_id, HttpServletRequest request) {
-    	
     	/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
-
+        
         String[] splitArray =  userDetailName.split("\\\\");
-
+        
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
+		
         String username = "admin";
-        String tenantId = "apipt";
-        String role = ROLE_PORTAL_ADMIN;
-
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+		
         User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 		
         Answer answer = new Answer();

@@ -51,11 +51,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.csrf().disable()
         .headers().frameOptions().disable().and()
         .cors().disable()
-        //.httpBasic()
-		//.and()
-		//.securityContext().securityContextRepository(securityContextRepository)
+        //.securityContext().securityContextRepository(securityContextRepository)
         //.and()
         .authorizeRequests()
+        //.antMatchers(
+        //		"/*/api/v1/topics/document/**",
+        //		"/*/api/v1/files/download/**"
+        //).permitAll()
         //.antMatchers(
         //        "/*/api/v1/**"
         //).authenticated()

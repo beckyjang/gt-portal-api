@@ -15,18 +15,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import tech.genesis.portal.authentication.SessionConfiguration;
+import tech.genesis.portal.fourm.controller.RestUserController.CumsumerResponse;
 import tech.genesis.portal.fourm.domain.Answer;
 import tech.genesis.portal.fourm.domain.AttachFile;
 import tech.genesis.portal.fourm.domain.Topic;
@@ -50,11 +52,9 @@ public class RestTopicController {
 	public static final String CATEGORY_GUIDE = "guide";
 	public static final String CATEGORY_DOCUMENT = "document";
 	public static final String CATEGORY_QNA = "qna";
-	
 	public static final String ROLE_PORTAL_ADMIN = "portaladministrators";
 	public static final String ROLE_PORTAL_ORG_DEVELOPER = "devorgadministrators";
 	public static final String ROLE_PORTAL_DEVELOPER = "developers";
-	
 	
 	@Autowired
 	TopicRepository topicRepository;
@@ -89,7 +89,6 @@ public class RestTopicController {
 
 	@GetMapping(value = { "/{id}" })
 	public Topic getTopicByIdAndTenantId(@PathVariable Long id){
-		
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
@@ -99,11 +98,9 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 		
@@ -112,7 +109,6 @@ public class RestTopicController {
 
 	@GetMapping(value = { "/guide/list" })
 	public Page<Topic> getAllGuides(Pageable pageable){
-		
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
@@ -122,11 +118,9 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 		
@@ -167,24 +161,21 @@ public class RestTopicController {
 
 	@GetMapping(value = { "/qna/list" })
 	public Page<Topic> getAllQna(Pageable pageable){
-
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
-
+        
         String[] splitArray =  userDetailName.split("\\\\");
-
+        
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-
+		
 		List<Topic> qnaList = new ArrayList<>();
 
 		Page<Object[]> queryTopicPage = null;
@@ -241,22 +232,69 @@ public class RestTopicController {
 	public Topic getTopicGuideById(@PathVariable Long id){
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userDetailName = ((UserDetails)principal).getUsername();
+		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
         
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-		*/
-		String username = "admin";
+        */
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-
+		
 		Topic guide = topicRepository.findTopicByIdAndTenantId(id, tenantId);
 
 		return guide;
 	}
+	
+	@GetMapping(value = { "/guide/edit/{id}" })
+	public TopicEditResponse getTopicEdit(@PathVariable Long id) {
+		/*
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userDetailName = ((UserDetails)principal).getUsername();
+        
+        String[] splitArray =  userDetailName.split("\\\\");
+        
+        String username = splitArray[0];
+        String tenantId = splitArray[1];
+        String role = splitArray[2];
+        */
+		
+        String username = "admin";
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+        
+		Topic topic = topicRepository.findTopicByIdAndTenantId(id, tenantId);
+		
+		
+		String[] permits = topic.getPermit().split(",");
+		
+		CumsumerResponse cumsumerResponse = new CumsumerResponse();
+		List<CumsumerResponse> cumsumerResponseList = new ArrayList<CumsumerResponse>();
+	
+		for(String uuid: permits) {
+			
+			List<Object[]> userList = userRepository.findUserByIdAndTenantId(uuid, tenantId);
+			
+			for(Object[] user: userList) {
+				cumsumerResponse = new CumsumerResponse();
+				cumsumerResponse.setId(user[0].toString());
+				cumsumerResponse.setItemName(user[1].toString());
+				cumsumerResponse.setCategory(user[2].toString());
+				cumsumerResponseList.add(cumsumerResponse);
+			}
+			
+		}
+	
+		TopicEditResponse res = new TopicEditResponse();
+		res.setTopic(topic);
+		res.setCumsumer(cumsumerResponseList);
+		return res;
+	}
+	
 
 	@GetMapping(value = { "/qna/detail/{id}" })
 	public Topic getTopicQnaById(@PathVariable Long id){
@@ -269,17 +307,14 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-
+		
 		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
-		String uuid_user = user.getId();
-
+		
 		Topic qna = topicRepository.findTopicByIdAndTenantId(id, tenantId);
 
 		return qna;
@@ -305,14 +340,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-		
+        
 		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
@@ -329,7 +362,6 @@ public class RestTopicController {
 	@DeleteMapping(value = { "/qna/delete/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteQnaById(@PathVariable Long id){
-
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
@@ -339,14 +371,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-
+        
 		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
@@ -364,7 +394,6 @@ public class RestTopicController {
 	@DeleteMapping(value = { "/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteTopicById(@PathVariable Long id){
-
 		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
@@ -374,14 +403,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-		
+        
 		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
 
@@ -406,11 +433,9 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-       
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
-		String username = "admin";
+		
+        String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
 
@@ -507,23 +532,21 @@ public class RestTopicController {
     @PostMapping(value = { "/{id}" })
     @ResponseStatus(HttpStatus.OK)
     public void updateTopic(@PathVariable Long id, @ModelAttribute TopicForm topicForm, HttpServletRequest request) {
-		/*
+    	/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
-
+        
         String[] splitArray =  userDetailName.split("\\\\");
-
+        
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-
-        String uuid_user = userRepository.getUserByUsernameAndTenantId(username, tenantId).getId();
         */
-
+		
         String username = "admin";
-        String tenantId = "apipt";
-        String role = ROLE_PORTAL_ADMIN;
-
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+        
         User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 
         Topic topic = topicRepository.findTopicByIdAndTenantId(id, tenantId);
@@ -583,6 +606,23 @@ public class RestTopicController {
 
     }
 
+    public static class TopicEditResponse {
+    	private Topic topic;
+    	private List<CumsumerResponse> cumsumer;
+		public Topic getTopic() {
+			return topic;
+		}
+		public void setTopic(Topic topic) {
+			this.topic = topic;
+		}
+		public List<CumsumerResponse> getCumsumer() {
+			return cumsumer;
+		}
+		public void setCumsumer(List<CumsumerResponse> cumsumer) {
+			this.cumsumer = cumsumer;
+		}
+		
+    }
 
 	public static class TopicForm {
 

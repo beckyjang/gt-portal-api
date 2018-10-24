@@ -1,5 +1,7 @@
 package tech.genesis.portal.fourm.controller;
 
+import static tech.genesis.portal.fourm.controller.RestTopicController.ROLE_PORTAL_ADMIN;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,7 +140,6 @@ public class RestUserController {
 	
 	@GetMapping("/api/v1/users/session")
 	public UserResponse getUserBySession(){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -147,12 +148,13 @@ public class RestUserController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-		
+        */
+        
 		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
        
         Organization organization = organizationRepository.getOranizationByUuidAndTenantId(user.getOrganizationUuid(), tenantId);

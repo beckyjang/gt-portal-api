@@ -34,34 +34,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth)
 			throws Exception {
-		/*
-		auth.
-			inMemoryAuthentication()
-			.passwordEncoder(passwordEncoder())
-			.withUser("user\\t1\\developer").password("user").roles("USER").and()
-			.withUser("admin\\t1\\portaladministrators").password("$2a$08$lDnHPz7eUkSi6ao14Twuau08mzhWrL4kyZGGU5xfiGALO/Vxd5DOi").roles("portaladministrators");
-		*/
 	}
 	
 	@Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 		
 		httpSecurity
-		//.addFilterBefore(corsFilter, ChannelProcessingFilter.class)
 		.csrf().disable()
         .headers().frameOptions().disable().and()
         .cors().disable()
-        //.securityContext().securityContextRepository(securityContextRepository)
-        //.and()
+        .securityContext().securityContextRepository(securityContextRepository)
+        .and()
         .authorizeRequests()
-        //.antMatchers(
-        //		"/*/api/v1/topics/document/**",
-        //		"/*/api/v1/files/download/**"
-        //).permitAll()
-        //.antMatchers(
-        //        "/*/api/v1/**"
-        //).authenticated()
-        // front permit
+        .antMatchers(
+        		"/*/api/v1/users/session/**",
+        		"/*/api/v1/topics/document/**",
+        		"/*/api/v1/files/download/**"
+        ).permitAll()
+        .antMatchers(
+                "/*/api/v1/**"
+        ).authenticated()
         .anyRequest().permitAll();
     }
     

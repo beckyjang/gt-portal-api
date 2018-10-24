@@ -1,5 +1,7 @@
 package tech.genesis.portal.fourm.controller;
 
+import static tech.genesis.portal.fourm.controller.RestTopicController.ROLE_PORTAL_ADMIN;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +91,6 @@ public class RestTopicController {
 
 	@GetMapping(value = { "/{id}" })
 	public Topic getTopicByIdAndTenantId(@PathVariable Long id){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -98,18 +99,18 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 		
 		return topicRepository.findTopicByIdAndTenantId(id,tenantId);
 	}
 
 	@GetMapping(value = { "/guide/list" })
 	public Page<Topic> getAllGuides(Pageable pageable){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -118,11 +119,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 		
 		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 		
@@ -161,7 +163,6 @@ public class RestTopicController {
 
 	@GetMapping(value = { "/qna/list" })
 	public Page<Topic> getAllQna(Pageable pageable){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -170,12 +171,13 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-		
+        */
+        
 		List<Topic> qnaList = new ArrayList<>();
 
 		Page<Object[]> queryTopicPage = null;
@@ -230,7 +232,6 @@ public class RestTopicController {
 
 	@GetMapping(value = { "/guide/detail/{id}" })
 	public Topic getTopicGuideById(@PathVariable Long id){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -239,11 +240,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 		
 		Topic guide = topicRepository.findTopicByIdAndTenantId(id, tenantId);
 
@@ -252,7 +254,6 @@ public class RestTopicController {
 	
 	@GetMapping(value = { "/guide/edit/{id}" })
 	public TopicEditResponse getTopicEdit(@PathVariable Long id) {
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -261,11 +262,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
         
 		Topic topic = topicRepository.findTopicByIdAndTenantId(id, tenantId);
 		
@@ -298,7 +300,6 @@ public class RestTopicController {
 
 	@GetMapping(value = { "/qna/detail/{id}" })
 	public Topic getTopicQnaById(@PathVariable Long id){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -307,11 +308,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 		
 		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 		
@@ -331,7 +333,6 @@ public class RestTopicController {
 	@DeleteMapping(value = { "/guide/delete/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteTopicGuideById(@PathVariable Long id){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -340,11 +341,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
         
 		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
@@ -362,7 +364,6 @@ public class RestTopicController {
 	@DeleteMapping(value = { "/qna/delete/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteQnaById(@PathVariable Long id){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -371,11 +372,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
         
 		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
@@ -394,7 +396,6 @@ public class RestTopicController {
 	@DeleteMapping(value = { "/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteTopicById(@PathVariable Long id){
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -403,11 +404,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
         
 		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByTopic_IdAndTenantId(id, tenantId);
 		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
@@ -424,7 +426,6 @@ public class RestTopicController {
 	
 	@PostMapping()
     public ResponseEntity<Topic> createTopic(@ModelAttribute TopicForm topicForm, HttpServletRequest request) {
-		/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -433,12 +434,13 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
-
+        */
+		
 		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 
 
@@ -471,21 +473,20 @@ public class RestTopicController {
 
 			String fileName = fileStorageService.storeFileRamdomName(file);
     		
-    		/*
-    		String fileDownloadUri = 
-            		"https"
-            		.concat("://")
-            		.concat(request.getServerName())
-            		.concat(request.getServletPath())
-            		.concat("/api/v1/files/download/")
-            		.concat(fileName);
-    		*/
-
-			String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
-					.path("/api/v1/files/download/")
-					.path(fileName)
-					.toUriString();
-
+			String fileDownloadUri = 
+	        		"https"
+	        		.concat("://")
+	        		.concat(request.getServerName())
+	        		.concat(request.getServletPath())
+	        		.concat("/api/v1/files/download/")
+	        		.concat(file.getOriginalFilename());
+	        
+	        /*
+	        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
+	                .path("/api/v1/files/download/")
+	                .path(fileName)
+	                .toUriString();
+	        */
 
 			attachFile.setFileName(file.getOriginalFilename());
 			attachFile.setFilePath(fileName);
@@ -532,8 +533,7 @@ public class RestTopicController {
     @PostMapping(value = { "/{id}" })
     @ResponseStatus(HttpStatus.OK)
     public void updateTopic(@PathVariable Long id, @ModelAttribute TopicForm topicForm, HttpServletRequest request) {
-    	/*
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
@@ -541,11 +541,12 @@ public class RestTopicController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
         
         User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 
@@ -569,20 +570,20 @@ public class RestTopicController {
 
             String fileName = fileStorageService.storeFileRamdomName(file);
 
-    		/*
-    		String fileDownloadUri =
+            String fileDownloadUri = 
             		"https"
             		.concat("://")
             		.concat(request.getServerName())
             		.concat(request.getServletPath())
             		.concat("/api/v1/files/download/")
-            		.concat(fileName);
-    		*/
-
+            		.concat(file.getOriginalFilename());
+            
+            /*
             String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
                     .path("/api/v1/files/download/")
                     .path(fileName)
                     .toUriString();
+            */
 
             AttachFile attachFile = new AttachFile();
 

@@ -126,7 +126,7 @@ public class CookieSecurityContextRepository implements SecurityContextRepositor
     	JSONObject user = (JSONObject) userInfo.get("user");
         JSONObject customAttrs = (JSONObject) user.get("customAttrs");
         
-        return customAttrs.get("role").toString();
+        return customAttrs.get("roleName").toString();
     }
 
     private Cookie getAuthenticationCookie(HttpServletRequest request) {

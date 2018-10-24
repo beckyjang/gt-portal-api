@@ -21,4 +21,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     void deleteAnswerByIdAndTenantId(Long id, String tenantId);
     
     List<Answer> findAnswerByTopic_IdAndTenantId(Long topic_id, String tenantId);
+    
+    Answer findAnswerByIdAndTenantId(Long id, String tenantId);
 }

@@ -70,7 +70,7 @@ public class FileController {
 	@Autowired
 	ImageFileRepository imageFileRepository;
 	
-	//@PreAuthorize("hasRole('portaladministrators')")
+	@PreAuthorize("hasRole('portaladministrators')")
 	@PostMapping("/uploadFile")
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         String fileName = fileStorageService.storeFileRamdomName(file);
@@ -94,7 +94,7 @@ public class FileController {
                 file.getContentType(), file.getSize());
     }
 	
-	//@PreAuthorize("hasRole('portaladministrators')")
+	@PreAuthorize("hasRole('portaladministrators')")
 	@PostMapping("/uploadMultipleFiles")
     public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files, HttpServletRequest request) {
         return Arrays.asList(files)
@@ -103,11 +103,11 @@ public class FileController {
                 .collect(Collectors.toList());
     }
 	
-	//@PreAuthorize("hasRole('portaladministrators')")
+	@PreAuthorize("hasRole('portaladministrators')")
     @RequestMapping(value = "/images", method = RequestMethod.POST)
 	public ImageFile postImage(@ModelAttribute ImageFileForm imageFileForm, HttpServletRequest request) {
-		/*
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	
+    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
@@ -115,16 +115,17 @@ public class FileController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 
         MultipartFile file = imageFileForm.getFile();
     	
     	String fileName = fileStorageService.storeFileRamdomName(imageFileForm.getFile());
-    	/*
+    	
     	String fileDownloadUri = 
         		"https"
         		.concat("://")
@@ -132,12 +133,12 @@ public class FileController {
         		.concat(request.getServletPath())
         		.concat("/api/v1/files/download/")
         		.concat(fileName);
-    	*/
-    	
+    	/*
     	String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
                 .path("/api/v1/files/download/")
                 .path(fileName)
                 .toUriString();
+    	*/
     	
     	ImageFile imageFile = new ImageFile();
     	imageFile.setDescription(imageFileForm.getDescription());
@@ -153,11 +154,10 @@ public class FileController {
 		return imageFileRepository.save(imageFile);
 	}
     
-	//@PreAuthorize("hasRole('portaladministrators')")
+	@PreAuthorize("hasRole('portaladministrators')")
     @GetMapping(value = { "/images" })
 	public Page<ImageFile> getAllImage(Pageable pageable){
-		/*
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
@@ -165,20 +165,20 @@ public class FileController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
         
     	return imageFileRepository.findAllImageFileByTenantIdOrderByCreatedDateDesc(pageable, tenantId);
     }
     
-	//@PreAuthorize("hasRole('portaladministrators')")
+	@PreAuthorize("hasRole('portaladministrators')")
     @GetMapping(value = { "/images/{id}" })
 	public ImageFile getImageById(@PathVariable Long id){
-		/*
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
@@ -186,22 +186,22 @@ public class FileController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 
 		return imageFileRepository.findImageFileByIdAndTenantId(id, tenantId);
     
     }
     
-	//@PreAuthorize("hasRole('portaladministrators')")
+	@PreAuthorize("hasRole('portaladministrators')")
     @DeleteMapping(value = { "/images/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteImageById(@PathVariable Long id){
-		/*
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
@@ -209,11 +209,12 @@ public class FileController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 		
 		ImageFile imageFile = imageFileRepository.findImageFileByIdAndTenantId(id, tenantId);
 		imageFileRepository.delete(imageFile);
@@ -247,11 +248,10 @@ public class FileController {
     }
 
 
-    //@PreAuthorize("hasRole('portaladministrators')")
+    @PreAuthorize("hasRole('portaladministrators')")
 	@DeleteMapping(value = { "/deleteAttachFile/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteAttachFileById(@PathVariable Long id){
-    	/*
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
@@ -260,11 +260,12 @@ public class FileController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 
 		List<AttachFile> attachFileList = attachFileRepository.findAllAttachFileByIdAndTenantId(id, tenantId);
 

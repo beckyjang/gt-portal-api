@@ -9,12 +9,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -55,20 +57,9 @@ public class RestAnswersController {
     @Autowired
     private FileStorageService fileStorageService;
     
-    @GetMapping
-    public List<Answer> getAllAnswer() {
-        return answerRepository.findAll();
-    }
-    
-    @GetMapping("/{id}")
-    public Optional<Answer> getAnswersById(@PathVariable Long id) {
-        return answerRepository.findById(id);
-    }
-    
     @PostMapping(value={"/topic/{topic_id}"})
     public ResponseEntity<Answer> createAnswerBySessionByTopicId(@ModelAttribute AnswerForm answerForm, @PathVariable String topic_id, HttpServletRequest request) {
-    	/*
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userDetailName = ((UserDetails)principal).getUsername();
         
         String[] splitArray =  userDetailName.split("\\\\");
@@ -76,11 +67,12 @@ public class RestAnswersController {
         String username = splitArray[0];
         String tenantId = splitArray[1];
         String role = splitArray[2];
-        */
-		
-        String username = "admin";
+        
+        /*
+    	String username = "admin";
 		String tenantId = "apipt";
 		String role = ROLE_PORTAL_ADMIN;
+        */
 		
         User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
 		
@@ -92,22 +84,21 @@ public class RestAnswersController {
      
         	MultipartFile file = answerForm.getFile();
     		
-    		String fileName = fileStorageService.storeFile(file);
+        	String fileName = fileStorageService.storeFileRamdomName(file);
     		
-    		/*
-    		String fileDownloadUri =
+    		String fileDownloadUri = 
             		"https"
             		.concat("://")
             		.concat(request.getServerName())
             		.concat(request.getServletPath())
             		.concat("/api/v1/files/download/")
             		.concat(fileName);
-    		*/
-
-            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
+        	/*
+        	String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
                     .path("/api/v1/files/download/")
                     .path(fileName)
                     .toUriString();
+        	*/
 
     		attachFile.setFileName(fileName);
     		attachFile.setFileDownloadUri(fileDownloadUri);
@@ -148,6 +139,37 @@ public class RestAnswersController {
         return new ResponseEntity<>(answer, headers, HttpStatus.CREATED);
 	}
     
+    @DeleteMapping(value = { "/{id}" })
+	@ResponseStatus(HttpStatus.OK)
+	public void deleteAnswersById(@PathVariable Long id){
+    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userDetailName = ((UserDetails)principal).getUsername();
+        
+        String[] splitArray =  userDetailName.split("\\\\");
+        
+        String username = splitArray[0];
+        String tenantId = splitArray[1];
+        String role = splitArray[2];
+        
+        /*
+    	String username = "admin";
+		String tenantId = "apipt";
+		String role = ROLE_PORTAL_ADMIN;
+        */
+        
+		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
+
+		Answer answer = answerRepository.findAnswerByIdAndTenantId(id, tenantId);
+		
+		List<AttachFile> attachFileList = answer.getAttachFile();
+		
+		attachFileList.forEach(attachFile -> {
+			fileStorageService.deleteFile(attachFile.getFilePath());
+		});
+		
+		answerRepository.delete(answer);
+		
+	}
     public static class AnswerForm {
 
         private String content;

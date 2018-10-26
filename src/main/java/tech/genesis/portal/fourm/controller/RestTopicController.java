@@ -479,7 +479,7 @@ public class RestTopicController {
 	        		.concat(request.getServerName())
 	        		.concat(request.getServletPath())
 	        		.concat("/api/v1/files/download/")
-	        		.concat(file.getOriginalFilename());
+	        		.concat(fileName);
 	        
 	        /*
 	        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()
@@ -576,7 +576,7 @@ public class RestTopicController {
             		.concat(request.getServerName())
             		.concat(request.getServletPath())
             		.concat("/api/v1/files/download/")
-            		.concat(file.getOriginalFilename());
+            		.concat(fileName);
             
             /*
             String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()

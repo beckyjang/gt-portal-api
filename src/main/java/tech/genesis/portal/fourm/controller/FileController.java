@@ -81,7 +81,7 @@ public class FileController {
         		.concat(request.getServerName())
         		.concat(request.getServletPath())
         		.concat("/api/v1/files/download/")
-        		.concat(file.getOriginalFilename());
+        		.concat(fileName);
         
         /*
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentServletMapping()

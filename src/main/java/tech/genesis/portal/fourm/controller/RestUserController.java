@@ -1,41 +1,24 @@
 package tech.genesis.portal.fourm.controller;
 
-import static tech.genesis.portal.fourm.controller.RestTopicController.ROLE_PORTAL_ADMIN;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.OneToMany;
 import javax.servlet.http.HttpServletRequest;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 
 import tech.genesis.portal.authentication.SessionConfiguration;
-import tech.genesis.portal.fourm.domain.Answer;
+import tech.genesis.portal.authentication.domain.UserInfo;
+import tech.genesis.portal.authentication.service.AuthSessionService;
 import tech.genesis.portal.fourm.domain.Organization;
-import tech.genesis.portal.fourm.domain.Topic;
 import tech.genesis.portal.fourm.domain.User;
 import tech.genesis.portal.fourm.repository.AnswerRepository;
 import tech.genesis.portal.fourm.repository.OrganizationRepository;
@@ -61,6 +44,9 @@ public class RestUserController {
 	
 	@Autowired
 	private SessionConfiguration sessionConfiguration;
+	
+	@Autowired
+	private AuthSessionService authSessionService;
 	
 	public static final String ROLE_PORTAL_ADMIN = "portaladministrators";
 	public static final String ROLE_PORTAL_ORG_DEVELOPER = "devorgadministrators";
@@ -140,14 +126,15 @@ public class RestUserController {
 	
 	@GetMapping("/api/v1/users/session")
 	public UserResponse getUserBySession(){
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String userDetailName = ((UserDetails)principal).getUsername();
-        
-        String[] splitArray =  userDetailName.split("\\\\");
-        
-        String username = splitArray[0];
-        String tenantId = splitArray[1];
-        String role = splitArray[2];
+		
+//		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//		String userDetailName = ((UserDetails)principal).getUsername();
+//        
+//        String[] splitArray =  userDetailName.split("\\\\");
+//        
+//        String username = splitArray[0];
+//        String tenantId = splitArray[1];
+//        String role = splitArray[2];
         
         /*
     	String username = "admin";
@@ -155,14 +142,16 @@ public class RestUserController {
 		String role = ROLE_PORTAL_ADMIN;
         */
         
-		User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
+        UserInfo userInfo = authSessionService.getUserInfo();
+        
+		User user = userRepository.getUserByUsernameAndTenantId(userInfo.getUsername(), userInfo.getTenantId());
        
-        Organization organization = organizationRepository.getOranizationByUuidAndTenantId(user.getOrganizationUuid(), tenantId);
+        Organization organization = organizationRepository.getOranizationByUuidAndTenantId(user.getOrganizationUuid(), userInfo.getTenantId());
         
         UserResponse userResponse = new UserResponse();
         
         userResponse.setUser(user);
-        userResponse.setRole(role);
+        userResponse.setRole(userInfo.getRole());
         userResponse.setOrganization(organization);
         
         return userResponse;

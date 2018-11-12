@@ -43,17 +43,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.csrf().disable()
         .headers().frameOptions().disable().and()
         .cors().disable()
-        .securityContext().securityContextRepository(securityContextRepository)
-        .and()
+        //.securityContext().securityContextRepository(securityContextRepository)
+        //.and()
         .authorizeRequests()
-        .antMatchers(
-        		"/*/api/v1/users/session/**",
-        		"/*/api/v1/topics/document/**",
-        		"/*/api/v1/files/download/**"
-        ).permitAll()
-        .antMatchers(
-                "/*/api/v1/**"
-        ).authenticated()
+        //.antMatchers(
+        //		"/*/api/v1/users/session/**",
+        //		"/*/api/v1/topics/document/**",
+        //		"/*/api/v1/files/download/**"
+        //).permitAll()
+        //.antMatchers(
+        //        "/*/api/v1/**"
+        //).authenticated()
         .anyRequest().permitAll();
     }
     

@@ -1,26 +1,30 @@
 package tech.genesis.portal.fourm.controller;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import tech.genesis.portal.authentication.domain.UserInfo;
+import tech.genesis.portal.authentication.service.AuthSessionService;
 import tech.genesis.portal.fourm.domain.Answer;
 import tech.genesis.portal.fourm.domain.AttachFile;
 import tech.genesis.portal.fourm.domain.User;
@@ -29,16 +33,6 @@ import tech.genesis.portal.fourm.repository.AttachFileRepository;
 import tech.genesis.portal.fourm.repository.TopicRepository;
 import tech.genesis.portal.fourm.repository.UserRepository;
 import tech.genesis.portal.fourm.service.FileStorageService;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-
-import static tech.genesis.portal.fourm.controller.RestTopicController.ROLE_PORTAL_ADMIN;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders="*")
@@ -56,25 +50,15 @@ public class RestAnswersController {
 	AttachFileRepository attachFileRepository;
     @Autowired
     private FileStorageService fileStorageService;
-    
+	@Autowired
+	private AuthSessionService authSessionService;
+	
     @PostMapping(value={"/topic/{topic_id}"})
     public ResponseEntity<Answer> createAnswerBySessionByTopicId(@ModelAttribute AnswerForm answerForm, @PathVariable String topic_id, HttpServletRequest request) {
-    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String userDetailName = ((UserDetails)principal).getUsername();
-        
-        String[] splitArray =  userDetailName.split("\\\\");
-        
-        String username = splitArray[0];
-        String tenantId = splitArray[1];
-        String role = splitArray[2];
-        
-        /*
-    	String username = "admin";
-		String tenantId = "apipt";
-		String role = ROLE_PORTAL_ADMIN;
-        */
 		
-        User user = userRepository.getUserByUsernameAndTenantId(username, tenantId);
+    	UserInfo userInfo = authSessionService.getUserInfo();
+    	
+        User user = userRepository.getUserByUsernameAndTenantId(userInfo.getUsername(), userInfo.getTenantId());
 		
         Answer answer = new Answer();
         AttachFile attachFile = new AttachFile();
@@ -104,7 +88,7 @@ public class RestAnswersController {
     		attachFile.setFileDownloadUri(fileDownloadUri);
     		attachFile.setContentType(file.getContentType());
     		attachFile.setSize(file.getSize());
-    		attachFile.setTenantId(tenantId);
+    		attachFile.setTenantId(userInfo.getTenantId());
     		attachFile.setCreatedDate(LocalDateTime.now());
     		
     		List<AttachFile> attachFileList = new ArrayList<>();
@@ -115,9 +99,9 @@ public class RestAnswersController {
 
         answer.setContent(answerForm.getContent());
         answer.setCreatedDate(LocalDateTime.now());
-        answer.setTenantId(tenantId);
+        answer.setTenantId(userInfo.getTenantId());
         answer.setUseful(false);
-        answer.setTopic(topicRepository.findTopicByIdAndTenantId(Long.valueOf(topic_id),tenantId));
+        answer.setTopic(topicRepository.findTopicByIdAndTenantId(Long.valueOf(topic_id),userInfo.getTenantId()));
         answer.setUser(user);
 
         Answer createAnswer = answerRepository.save(answer);
@@ -142,24 +126,12 @@ public class RestAnswersController {
     @DeleteMapping(value = { "/{id}" })
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteAnswersById(@PathVariable Long id){
-    	Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String userDetailName = ((UserDetails)principal).getUsername();
+    	
+    	UserInfo userInfo = authSessionService.getUserInfo();
         
-        String[] splitArray =  userDetailName.split("\\\\");
-        
-        String username = splitArray[0];
-        String tenantId = splitArray[1];
-        String role = splitArray[2];
-        
-        /*
-    	String username = "admin";
-		String tenantId = "apipt";
-		String role = ROLE_PORTAL_ADMIN;
-        */
-        
-		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, tenantId);
+		List<Answer> answerList = answerRepository.findAnswerByTopic_IdAndTenantId(id, userInfo.getTenantId());
 
-		Answer answer = answerRepository.findAnswerByIdAndTenantId(id, tenantId);
+		Answer answer = answerRepository.findAnswerByIdAndTenantId(id, userInfo.getTenantId());
 		
 		List<AttachFile> attachFileList = answer.getAttachFile();
 		

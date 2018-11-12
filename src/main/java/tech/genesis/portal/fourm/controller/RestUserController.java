@@ -127,21 +127,6 @@ public class RestUserController {
 	@GetMapping("/api/v1/users/session")
 	public UserResponse getUserBySession(){
 		
-//		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//		String userDetailName = ((UserDetails)principal).getUsername();
-//        
-//        String[] splitArray =  userDetailName.split("\\\\");
-//        
-//        String username = splitArray[0];
-//        String tenantId = splitArray[1];
-//        String role = splitArray[2];
-        
-        /*
-    	String username = "admin";
-		String tenantId = "apipt";
-		String role = ROLE_PORTAL_ADMIN;
-        */
-        
         UserInfo userInfo = authSessionService.getUserInfo();
         
 		User user = userRepository.getUserByUsernameAndTenantId(userInfo.getUsername(), userInfo.getTenantId());
